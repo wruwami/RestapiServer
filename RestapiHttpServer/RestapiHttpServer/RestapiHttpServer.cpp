@@ -18,7 +18,7 @@ int main()
     {
         Server srv;
 
-        unsigned int thread_pool_size = std::thread::hardware_concurrency() * 2;
+        unsigned int thread_pool_size = std::thread::hardware_concurrency() * 2;    // 일반적으로 코어 * 2로 정하는 것이 최적화되어 있다고 알려져 있다.
 
         if (thread_pool_size == 0)
             thread_pool_size = DEFAULT_THREAD_POOL_SIZE;
