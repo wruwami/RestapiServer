@@ -6,17 +6,15 @@
 
 #include <boost/filesystem.hpp>
 
-#define USING_BOOST_JSON_PARSER 0;
+#define USING_BOOST_JSON_PARSER
 
-#if USING_BOOST_JSON_PARSER
-#define USING_JSON_CPP_PARSER   0;
-#else
-#define USING_JSON_CPP_PARSER   1;
+#if !defined(USING_BOOST_JSON_PARSER)
+#define USING_JSON_CPP_PARSER
 #endif // USING_BOOST_JSON_PARSER
 
-#ifdef USING_JSON_CPP_PARSER
+#if defined(USING_JSON_CPP_PARSER)
 #include <json\json.h>
-#elif USING_BOOST_JSON_PARSER
+#elif defined(USING_BOOST_JSON_PARSER)
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #endif // USING_JSON_CPP_PARSER
@@ -107,7 +105,7 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
     return;
 }
 
-void Service::on_headers_received(const boost::system::error_code & ec, std::size_t bytes_transferred)
+void Service::on_headers_received(const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
@@ -149,16 +147,16 @@ void Service::process_request()
 {
     try
     {
-#ifdef USING_JSON_CPP_PARSER
+#if defined(USING_JSON_CPP_PARSER)
         Json::Value value;
         std::ifstream fs("..\\db.json", std::ifstream::binary);
         fs >> value;
         
         m_resource_buffer += std::string("[");
-        for (auto const& v : value[m_requested_resource])
+        for (const auto& v : value[m_requested_resource])
         {
             m_resource_buffer += std::string("{ ");
-            for (auto const& id : v.getMemberNames())
+            for (const auto& id : v.getMemberNames())
             {
                 //std::cout << id << ": " << v[id] << std::endl;
                 m_resource_buffer += "\"" + boost::lexical_cast<std::string>(id) + "\": " + boost::lexical_cast<std::string>(v[id]) + "," ;
@@ -167,7 +165,7 @@ void Service::process_request()
             m_resource_buffer += std::string("}, ");
         }
 
-#elif  USING_BOOST_JSON_PARSER
+#elif defined(USING_BOOST_JSON_PARSER)
         boost::property_tree::ptree pt;
         boost::property_tree::read_json("..\\db.json", pt);
 
@@ -206,7 +204,7 @@ void Service::process_request()
         m_resource_buffer += std::string("]");
         std::cout << "response : " + m_resource_buffer << std::endl;
     }
-    catch (std::exception const& e)
+    catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         m_resource_buffer.clear();

@@ -1,12 +1,14 @@
 #include "stdafx.h"
-#include "Acceptor.h"
 
+#include <boost\asio.hpp>
+
+#include "Acceptor.h"
 #include "Service.h"
 
 Acceptor::Acceptor(boost::asio::io_service& ios, unsigned short port_num)
     : m_ios(ios)
     , m_acceptor(m_ios, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port_num))
-    , m_isStopped(false)
+    , m_is_stopped(false)
 {
 }
 
@@ -22,7 +24,7 @@ void Acceptor::start()
 
 void Acceptor::stop()
 {
-	m_isStopped.store(true);
+	m_is_stopped.store(true);
 }
 
 void Acceptor::init()
@@ -35,7 +37,7 @@ void Acceptor::init()
 	});
 }
 
-void Acceptor::onAccept(const boost::system::error_code & ec, std::shared_ptr<boost::asio::ip::tcp::socket> sock)
+void Acceptor::onAccept(const boost::system::error_code& ec, std::shared_ptr<boost::asio::ip::tcp::socket> sock)
 {
 	if (ec.value() == 0) 
 	{
@@ -46,7 +48,7 @@ void Acceptor::onAccept(const boost::system::error_code & ec, std::shared_ptr<bo
 		std::cout << "Error occured! Error code = " << ec.value() << ". Message: " << ec.message();
 	}
 
-	if (!m_isStopped.load()) 
+	if (!m_is_stopped.load()) 
 	{
 		init();
 	}

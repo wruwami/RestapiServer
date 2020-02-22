@@ -1,8 +1,6 @@
 #ifndef __ACCEPTOR_H
 #define __ACCEPTOR_H
 
-#include <boost\asio.hpp>
-
 class Acceptor
 {
 public:
@@ -19,6 +17,6 @@ private:
 private:
 	boost::asio::io_service& m_ios;
 	boost::asio::ip::tcp::acceptor m_acceptor;
-	std::atomic<bool> m_isStopped;
+	std::atomic<bool> m_is_stopped;
 };
 #endif // __ACCEPTOR_H

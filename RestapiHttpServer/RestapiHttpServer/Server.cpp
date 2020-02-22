@@ -16,8 +16,8 @@ void Server::start(unsigned short port_num,	unsigned int thread_pool_size)
 {
 	assert(thread_pool_size > 0);
 
-	acc.reset(new Acceptor(m_ios, port_num));
-	acc->start();
+	m_acc.reset(new Acceptor(m_ios, port_num));
+	m_acc->start();
 
 	for (unsigned int i = 0; i < thread_pool_size; i++) 
 	{
@@ -32,8 +32,8 @@ void Server::start(unsigned short port_num,	unsigned int thread_pool_size)
 
 void Server::stop() 
 {
-	acc->stop();
 	m_ios.stop();
+	m_acc->stop();
 
 	for (auto& thread : m_thread_pool) 
 	{

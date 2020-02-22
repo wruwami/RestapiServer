@@ -17,7 +17,7 @@ public:
 private:
 	boost::asio::io_service m_ios;
 	std::unique_ptr<boost::asio::io_service::work> m_work;
-	std::unique_ptr<Acceptor> acc;
+	std::unique_ptr<Acceptor> m_acc;
 	std::vector<std::unique_ptr<std::thread>> m_thread_pool;
 };
 #endif // !__SERVER_H
