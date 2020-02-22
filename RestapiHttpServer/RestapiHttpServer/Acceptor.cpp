@@ -41,7 +41,7 @@ void Acceptor::onAccept(const boost::system::error_code& ec, std::shared_ptr<boo
 {
     if (ec.value() == 0)
     {
-        (new Service(sock))->startHandling();
+        (new Service(sock))->start();
     }
     else
     {

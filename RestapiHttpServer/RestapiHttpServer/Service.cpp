@@ -40,7 +40,7 @@ std::map<unsigned int, std::string> http_status_table =
 };
 
 
-Service::Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock) 
+Service::Service(std::shared_ptr<boost::asio::ip::tcp::socket>& sock) 
     : m_sock(sock)
     , m_request(4096)
 {
@@ -50,7 +50,7 @@ Service::~Service()
 {
 }
 
-void Service::startHandling()
+void Service::start()
 {
     boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n",
         [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
@@ -67,13 +67,12 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
         if (ec == boost::asio::error::not_found) 
         {
             sendResponse(HTTP_REQUEST_ENTITY_TOO_LARGE);
-            return;
         }
         else 
         {
-            onFinish();
-            return;
+            finish();
         }
+        return;
     }
 
     std::string request_line;
@@ -97,14 +96,14 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
 
     std::string request_http_version;
     request_line_stream >> request_http_version;
-
     if (request_http_version != "HTTP/1.1") 
     {
         sendResponse(HTTP_VERSION_NOT_SUPPORTED);
         return;
     }
 
-    boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n", [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
+    boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n", 
+        [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
         onHeadersReceived(ec, bytes_transferred);
     });
@@ -122,7 +121,7 @@ void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t
         }
         else 
         {
-            onFinish();
+            finish();
         }
         return;
     }
@@ -218,6 +217,7 @@ void Service::sendResponse(unsigned int response_status_code)
         response_buffers.push_back(boost::asio::buffer(m_resource_buffer));
     }
 
+    // 수정해서 브라우저에 찍히도록 수정
 //    boost::asio::async_write(*m_sock.get(), response_buffers,
 //         [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
 //     {
@@ -233,10 +233,10 @@ void Service::onResponseSend(const boost::system::error_code & ec, std::size_t b
     }
 
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-    onFinish();
+    finish();
 }
 
-void Service::onFinish()
+void Service::finish()
 {
     delete this;
 }

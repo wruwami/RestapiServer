@@ -6,10 +6,10 @@
 class Service
 {
 public:
-	Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock);
+	Service(std::shared_ptr<boost::asio::ip::tcp::socket>& sock);
 	virtual ~Service();
 
-	void startHandling();
+	void start();
 
 private:
 	void onRequestLineReceived(const boost::system::error_code& ec, std::size_t bytes_transferred);
@@ -21,14 +21,15 @@ private:
 
     void printErrorCode(const boost::system::error_code &ec);
 
-    void onFinish();
+    void finish();
 
 private:
 	std::shared_ptr<boost::asio::ip::tcp::socket> m_sock;
 	boost::asio::streambuf m_request;
 	std::string m_requested_resource;
-	std::string m_resource_buffer;
-	std::string m_response_headers;
+
     std::string m_status_line_buffer;
+	std::string m_response_headers;
+    std::string m_resource_buffer;
 };
 #endif // __SERVICE_H
