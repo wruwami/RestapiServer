@@ -29,16 +29,16 @@ Service::~Service()
 {
 }
 
-void Service::start_handling()
+void Service::startHandling()
 {
     boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n",
         [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
-        on_request_line_received(ec, bytes_transferred);
+        onRequestLineReceived(ec, bytes_transferred);
     });
 }
 
-void Service::on_request_line_received(const boost::system::error_code & ec, std::size_t bytes_transferred)
+void Service::onRequestLineReceived(const boost::system::error_code & ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
@@ -46,13 +46,13 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
         if (ec == boost::asio::error::not_found) 
         {
-            send_response(413);
+            sendResponse(413);
 
             return;
         }
         else 
         {
-            on_finish();
+            onFinish();
             return;
         }
     }
@@ -68,7 +68,7 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
     if (request_method.compare("GET") != 0) 
     {
-        send_response(501);
+        sendResponse(501);
 
         return;
     }
@@ -83,20 +83,20 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
     if (request_http_version.compare("HTTP/1.1") != 0) 
     {
-        send_response(505);
+        sendResponse(505);
 
         return;
     }
 
     boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n", [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
-        on_headers_received(ec, bytes_transferred);
+        onHeadersReceived(ec, bytes_transferred);
     });
 
     return;
 }
 
-void Service::on_headers_received(const boost::system::error_code& ec, std::size_t bytes_transferred)
+void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
@@ -104,12 +104,12 @@ void Service::on_headers_received(const boost::system::error_code& ec, std::size
 
         if (ec == boost::asio::error::not_found) 
         {
-            send_response(413);
+            sendResponse(413);
             return;
         }
         else 
         {
-            on_finish();
+            onFinish();
             return;
         }
     }
@@ -129,13 +129,13 @@ void Service::on_headers_received(const boost::system::error_code& ec, std::size
         }
     }
 
-    process_request();
-    send_response(200);
+    processRequest();
+    sendResponse(200);
 
     return;
 }
 
-void Service::process_request()
+void Service::processRequest()
 {
     try
     {
@@ -205,7 +205,7 @@ void Service::process_request()
 
 }
 
-void Service::send_response(unsigned int response_status_code)
+void Service::sendResponse(unsigned int response_status_code)
 {
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
 
@@ -231,12 +231,12 @@ void Service::send_response(unsigned int response_status_code)
     boost::asio::async_write(*m_sock.get(), response_buffers,
         [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
-        on_response_sent(ec,
+        onResponseSend(ec,
             bytes_transferred);
     });
 }
 
-void Service::on_response_sent(const boost::system::error_code & ec, std::size_t bytes_transferred)
+void Service::onResponseSend(const boost::system::error_code & ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
@@ -245,10 +245,10 @@ void Service::on_response_sent(const boost::system::error_code & ec, std::size_t
 
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 
-    on_finish();
+    onFinish();
 }
 
-void Service::on_finish()
+void Service::onFinish()
 {
     delete this;
 }

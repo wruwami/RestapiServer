@@ -9,16 +9,16 @@ public:
 	Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock);
 	virtual ~Service();
 
-	void start_handling();
+	void startHandling();
 
 private:
-	void on_request_line_received(const boost::system::error_code& ec, std::size_t bytes_transferred);
-	void on_headers_received(const boost::system::error_code& ec, std::size_t bytes_transferred);
+	void onRequestLineReceived(const boost::system::error_code& ec, std::size_t bytes_transferred);
+	void onHeadersReceived(const boost::system::error_code& ec, std::size_t bytes_transferred);
 
-	virtual void process_request();
-	virtual void send_response(unsigned int response_status_code);
-	void on_response_sent(const boost::system::error_code& ec, std::size_t bytes_transferred);
-	void on_finish();
+	virtual void processRequest();
+	virtual void sendResponse(unsigned int response_status_code);
+	void onResponseSend(const boost::system::error_code& ec, std::size_t bytes_transferred);
+	void onFinish();
 
 private:
 	std::shared_ptr<boost::asio::ip::tcp::socket> m_sock;
