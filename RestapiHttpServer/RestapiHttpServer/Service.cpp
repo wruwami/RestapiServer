@@ -130,7 +130,9 @@ void Service::on_headers_received(const boost::system::error_code& ec, std::size
     while (!request_stream.eof()) 
     {
         std::getline(request_stream, header_name, ':');
-        if (!request_stream.eof()) {std::getline(request_stream, header_value, '\r');
+        if (!request_stream.eof()) 
+		{
+			std::getline(request_stream, header_value, '\r');
 
             request_stream.get();
             m_request_headers[header_name] = header_value;
@@ -214,11 +216,11 @@ void Service::process_request()
 
 }
 
-void Service::send_response()
+void Service::send_response(unsigned int response_status_code;)
 {
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
 
-    std::string status_line = http_status_table.at(m_response_status_code);
+    std::string status_line = http_status_table.at(response_status_code);
 
     m_response_status_line = std::string("HTTP/1.1 ") + status_line + "\r\n";
 

@@ -16,7 +16,7 @@ private:
 	void on_headers_received(const boost::system::error_code& ec, std::size_t bytes_transferred);
 
 	virtual void process_request();
-	virtual void send_response();
+	virtual void send_response(unsigned int response_status_code);
 	void on_response_sent(const boost::system::error_code& ec, std::size_t bytes_transferred);
 	void on_finish();
 
@@ -27,7 +27,7 @@ private:
 	std::string m_requested_resource;
 
 	std::string m_resource_buffer;
-	unsigned int m_response_status_code;
+
 	std::string m_response_headers;
 	std::string m_response_status_line;
 
