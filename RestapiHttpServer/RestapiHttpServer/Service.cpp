@@ -63,7 +63,7 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
 {
     if (ec.value() != 0) 
     {
-        std::cout << "Error occurred! Error code = " << ec.value() << ". Message: " << ec.message();
+        printErrorCode(ec);
         if (ec == boost::asio::error::not_found) 
         {
             sendResponse(HTTP_REQUEST_ENTITY_TOO_LARGE);
@@ -80,10 +80,11 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
     std::istream request_stream(&m_request);
     std::getline(request_stream, request_line, '\r');
     request_stream.get();
+
     std::string request_method;
     std::istringstream request_line_stream(request_line);
     request_line_stream >> request_method;
-    if (request_method.compare("GET") != 0) 
+    if (request_method != "GET") 
     {
         sendResponse(HTTP_NOT_IMPLEMENTED);
         return;
@@ -97,10 +98,9 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
     std::string request_http_version;
     request_line_stream >> request_http_version;
 
-    if (request_http_version.compare("HTTP/1.1") != 0) 
+    if (request_http_version != "HTTP/1.1") 
     {
         sendResponse(HTTP_VERSION_NOT_SUPPORTED);
-
         return;
     }
 
@@ -108,39 +108,23 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
     {
         onHeadersReceived(ec, bytes_transferred);
     });
-
-    return;
 }
 
 void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
-        std::cout << "Error occurred! Error code = " << ec.value() << ". Message: " << ec.message();
+        printErrorCode(ec);
 
         if (ec == boost::asio::error::not_found) 
         {
             sendResponse(HTTP_REQUEST_ENTITY_TOO_LARGE);
-            return;
         }
         else 
         {
             onFinish();
-            return;
         }
-    }
-
-    std::istream request_stream(&m_request);
-    std::string header_name, header_value;
-
-    while (!request_stream.eof()) 
-    {
-        std::getline(request_stream, header_name, ':');
-        if (!request_stream.eof()) 
-		{
-			std::getline(request_stream, header_value, '\r');
-            request_stream.get();
-        }
+        return;
     }
 
     try
@@ -219,9 +203,10 @@ void Service::sendResponse(unsigned int response_status_code)
 {
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
     std::string status_line = http_status_table.at(response_status_code);
+    m_status_line_buffer = std::string("HTTP/1.1 ") + status_line + "\r\n";
     m_response_headers += "\r\n";
     std::vector<boost::asio::const_buffer> response_buffers;
-    response_buffers.push_back(boost::asio::buffer(std::string("HTTP/1.1 ") + status_line + "\r\n"));
+    response_buffers.push_back(boost::asio::buffer(m_status_line_buffer));
 
     if (m_response_headers.length() > 0) 
     {
@@ -233,19 +218,18 @@ void Service::sendResponse(unsigned int response_status_code)
         response_buffers.push_back(boost::asio::buffer(m_resource_buffer));
     }
 
-    boost::asio::async_write(*m_sock.get(), response_buffers,
-        [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
-    {
-        onResponseSend(ec,
-            bytes_transferred);
-    });
+//    boost::asio::async_write(*m_sock.get(), response_buffers,
+//         [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
+//     {
+//         onResponseSend(ec, bytes_transferred);
+//     });
 }
 
 void Service::onResponseSend(const boost::system::error_code & ec, std::size_t bytes_transferred)
 {
     if (ec.value() != 0) 
     {
-        std::cout << "Error occured! Error code = " << ec.value() << ". Message: " << ec.message();
+        printErrorCode(ec);
     }
 
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
@@ -255,4 +239,9 @@ void Service::onResponseSend(const boost::system::error_code & ec, std::size_t b
 void Service::onFinish()
 {
     delete this;
+}
+
+void Service::printErrorCode(const boost::system::error_code &ec)
+{
+    std::cout << "Error occurred! Error code = " << ec.value() << ". Message: " << ec.message();
 }

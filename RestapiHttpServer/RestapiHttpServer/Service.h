@@ -18,7 +18,10 @@ private:
 	virtual void processRequest();
 	virtual void sendResponse(unsigned int response_status_code);
 	void onResponseSend(const boost::system::error_code& ec, std::size_t bytes_transferred);
-	void onFinish();
+
+    void printErrorCode(const boost::system::error_code &ec);
+
+    void onFinish();
 
 private:
 	std::shared_ptr<boost::asio::ip::tcp::socket> m_sock;
@@ -26,5 +29,6 @@ private:
 	std::string m_requested_resource;
 	std::string m_resource_buffer;
 	std::string m_response_headers;
+    std::string m_status_line_buffer;
 };
 #endif // __SERVICE_H
