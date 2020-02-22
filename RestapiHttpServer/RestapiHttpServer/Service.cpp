@@ -22,7 +22,6 @@
 Service::Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock) 
     : m_sock(sock)
     , m_request(4096)
-    , m_response_status_code(200)
 {
 }
 
@@ -52,8 +51,7 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
         if (ec == boost::asio::error::not_found) 
         {
-            m_response_status_code = 413;
-            send_response();
+            send_response(413);
 
             return;
         }
@@ -75,8 +73,7 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
     if (request_method.compare("GET") != 0) 
     {
-        m_response_status_code = 501;
-        send_response();
+        send_response(501);
 
         return;
     }
@@ -91,8 +88,7 @@ void Service::on_request_line_received(const boost::system::error_code & ec, std
 
     if (request_http_version.compare("HTTP/1.1") != 0) 
     {
-        m_response_status_code = 505;
-        send_response();
+        send_response(505);
 
         return;
     }
@@ -113,8 +109,7 @@ void Service::on_headers_received(const boost::system::error_code& ec, std::size
 
         if (ec == boost::asio::error::not_found) 
         {
-            m_response_status_code = 413;
-            send_response();
+            send_response(413);
             return;
         }
         else 
@@ -140,7 +135,7 @@ void Service::on_headers_received(const boost::system::error_code& ec, std::size
     }
 
     process_request();
-    send_response();
+    send_response(200);
 
     return;
 }
@@ -210,13 +205,12 @@ void Service::process_request()
     {
         std::cout << e.what() << std::endl;
         m_resource_buffer.clear();
-        m_response_status_code = 404;
         return;
     }
 
 }
 
-void Service::send_response(unsigned int response_status_code;)
+void Service::send_response(unsigned int response_status_code)
 {
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
 
