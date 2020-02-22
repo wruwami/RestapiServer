@@ -148,80 +148,77 @@ void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t
         }
     }
 
-    processRequest();
-    sendResponse(HTTP_OK);
-
-    return;
-}
-
-void Service::processRequest()
-{
     try
     {
-#if defined(USING_JSON_CPP_PARSER)
-        Json::Value value;
-        std::ifstream fs("..\\db.json", std::ifstream::binary);
-        fs >> value;
-        
-        m_resource_buffer += std::string("[");
-        for (const auto& v : value[m_requested_resource])
-        {
-            m_resource_buffer += std::string("{ ");
-            for (const auto& id : v.getMemberNames())
-            {
-                //std::cout << id << ": " << v[id] << std::endl;
-                m_resource_buffer += "\"" + boost::lexical_cast<std::string>(id) + "\": " + boost::lexical_cast<std::string>(v[id]) + "," ;
-            }
-            m_resource_buffer.erase(m_resource_buffer.rfind(','));
-            m_resource_buffer += std::string("}, ");
-        }
-
-#elif defined(USING_BOOST_JSON_PARSER)
-        boost::property_tree::ptree pt;
-        boost::property_tree::read_json("..\\db.json", pt);
-
-        m_resource_buffer += std::string("[");
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child(m_requested_resource.c_str()))
-        {
-            assert(v.first.empty()); 
-            if (m_requested_resource == "todos")
-            {
-                int id = v.second.get<int>("id");
-                std::string todo = v.second.get<std::string>("todo");
-                m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id) + std::string(", \"todo\":") + todo + std::string("} ,");
-            }
-            else if (m_requested_resource == "users")
-            {
-                int id = v.second.get<int>("id");
-                std::string name = v.second.get<std::string>("name");
-                int age = v.second.get<int>("age");
-                std::string gender = v.second.get<std::string>("gender");
-                m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id)
-                    + std::string(", \"name\":") + name
-                    + std::string(", \"age\": ") + boost::lexical_cast<std::string>(age)
-                    + std::string(", \"gender\": ") + gender + std::string("} ,");
-            }
-            else if (m_requested_resource == "hobbies")
-            {
-                int id = v.second.get<int>("id");
-                std::string hobby = v.second.get<std::string>("hobby");
-                m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id)
-                    + std::string(", \"hobby\":") + hobby + std::string("} ,");
-            }
-        }
-#endif // USING_JSON_CPP_PARSER
-
-        m_resource_buffer.erase(m_resource_buffer.rfind(','));
-        m_resource_buffer += std::string("]");
-        std::cout << "response : " + m_resource_buffer << std::endl;
+        processRequest();
+        sendResponse(HTTP_OK);
     }
     catch (const std::exception& e)
     {
         std::cout << e.what() << std::endl;
         m_resource_buffer.clear();
-        return;
+        sendResponse(HTTP_NOT_FOUND);
+    }
+}
+
+void Service::processRequest()
+{
+#if defined(USING_JSON_CPP_PARSER)
+    Json::Value value;
+    std::ifstream fs("..\\db.json", std::ifstream::binary);
+    fs >> value;
+
+    m_resource_buffer += std::string("[");
+    for (const auto& v : value[m_requested_resource])
+    {
+        m_resource_buffer += std::string("{ ");
+        for (const auto& id : v.getMemberNames())
+        {
+            //std::cout << id << ": " << v[id] << std::endl;
+            m_resource_buffer += "\"" + boost::lexical_cast<std::string>(id) + "\": " + boost::lexical_cast<std::string>(v[id]) + ",";
+        }
+        m_resource_buffer.erase(m_resource_buffer.rfind(','));
+        m_resource_buffer += std::string("}, ");
     }
 
+#elif defined(USING_BOOST_JSON_PARSER)
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json("..\\db.json", pt);
+
+    m_resource_buffer += std::string("[");
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child(m_requested_resource.c_str()))
+    {
+        assert(v.first.empty());
+        if (m_requested_resource == "todos")
+        {
+            int id = v.second.get<int>("id");
+            std::string todo = v.second.get<std::string>("todo");
+            m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id) + std::string(", \"todo\":") + todo + std::string("} ,");
+        }
+        else if (m_requested_resource == "users")
+        {
+            int id = v.second.get<int>("id");
+            std::string name = v.second.get<std::string>("name");
+            int age = v.second.get<int>("age");
+            std::string gender = v.second.get<std::string>("gender");
+            m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id)
+                + std::string(", \"name\":") + name
+                + std::string(", \"age\": ") + boost::lexical_cast<std::string>(age)
+                + std::string(", \"gender\": ") + gender + std::string("} ,");
+        }
+        else if (m_requested_resource == "hobbies")
+        {
+            int id = v.second.get<int>("id");
+            std::string hobby = v.second.get<std::string>("hobby");
+            m_resource_buffer += std::string("{ \"id\": ") + boost::lexical_cast<std::string>(id)
+                + std::string(", \"hobby\":") + hobby + std::string("} ,");
+        }
+    }
+#endif // USING_JSON_CPP_PARSER
+
+    m_resource_buffer.erase(m_resource_buffer.rfind(','));
+    m_resource_buffer += std::string("]");
+    std::cout << "response : " + m_resource_buffer << std::endl;
 }
 
 void Service::sendResponse(unsigned int response_status_code)
