@@ -31,15 +31,10 @@ Service::~Service()
 
 void Service::start_handling()
 {
-    boost::asio::async_read_until(*m_sock.get(),
-        m_request,
-        "\r\n",
-        [this](
-            const boost::system::error_code& ec,
-            std::size_t bytes_transferred)
+    boost::asio::async_read_until(*m_sock.get(), m_request, "\r\n",
+        [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
-        on_request_line_received(ec,
-            bytes_transferred);
+        on_request_line_received(ec, bytes_transferred);
     });
 }
 
@@ -233,11 +228,8 @@ void Service::send_response(unsigned int response_status_code)
         response_buffers.push_back(boost::asio::buffer(m_resource_buffer));
     }
 
-    boost::asio::async_write(*m_sock.get(),
-        response_buffers,
-        [this](
-            const boost::system::error_code& ec,
-            std::size_t bytes_transferred)
+    boost::asio::async_write(*m_sock.get(), response_buffers,
+        [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
     {
         on_response_sent(ec,
             bytes_transferred);
