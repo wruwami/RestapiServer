@@ -26,6 +26,5 @@ private:
 	std::string m_requested_resource;
 	std::string m_resource_buffer;
 	std::string m_response_headers;
-	std::string m_response_status_line;
 };
 #endif // __SERVICE_H

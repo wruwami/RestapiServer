@@ -64,7 +64,6 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
     if (ec.value() != 0) 
     {
         std::cout << "Error occurred! Error code = " << ec.value() << ". Message: " << ec.message();
-
         if (ec == boost::asio::error::not_found) 
         {
             sendResponse(HTTP_REQUEST_ENTITY_TOO_LARGE);
@@ -81,15 +80,12 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
     std::istream request_stream(&m_request);
     std::getline(request_stream, request_line, '\r');
     request_stream.get();
-
     std::string request_method;
     std::istringstream request_line_stream(request_line);
     request_line_stream >> request_method;
-
     if (request_method.compare("GET") != 0) 
     {
         sendResponse(HTTP_NOT_IMPLEMENTED);
-
         return;
     }
 
@@ -143,7 +139,6 @@ void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t
         if (!request_stream.eof()) 
 		{
 			std::getline(request_stream, header_value, '\r');
-
             request_stream.get();
         }
     }
@@ -167,7 +162,6 @@ void Service::processRequest()
     Json::Value value;
     std::ifstream fs("..\\db.json", std::ifstream::binary);
     fs >> value;
-
     m_resource_buffer += std::string("[");
     for (const auto& v : value[m_requested_resource])
     {
@@ -224,15 +218,10 @@ void Service::processRequest()
 void Service::sendResponse(unsigned int response_status_code)
 {
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
-
     std::string status_line = http_status_table.at(response_status_code);
-
-    m_response_status_line = std::string("HTTP/1.1 ") + status_line + "\r\n";
-
     m_response_headers += "\r\n";
-
     std::vector<boost::asio::const_buffer> response_buffers;
-    response_buffers.push_back(boost::asio::buffer(m_response_status_line));
+    response_buffers.push_back(boost::asio::buffer(std::string("HTTP/1.1 ") + status_line + "\r\n"));
 
     if (m_response_headers.length() > 0) 
     {
@@ -260,7 +249,6 @@ void Service::onResponseSend(const boost::system::error_code & ec, std::size_t b
     }
 
     m_sock->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-
     onFinish();
 }
 
