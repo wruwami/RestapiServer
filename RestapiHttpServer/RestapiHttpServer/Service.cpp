@@ -34,7 +34,7 @@ void Service::onRequestLineReceived(const boost::system::error_code & ec, std::s
         Error::printErrorCode(ec);
         if (ec == boost::asio::error::not_found) 
         {
-            sendResponse(Error::HTTP_REQUEST_ENTITY_TOO_LARGE);
+            sendResponse(Error::HTTP_NOT_FOUND);
         }
         else 
         {
@@ -85,7 +85,7 @@ void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t
 
         if (ec == boost::asio::error::not_found) 
         {
-            sendResponse(Error::HTTP_REQUEST_ENTITY_TOO_LARGE);
+            sendResponse(Error::HTTP_NOT_FOUND);
         }
         else 
         {
@@ -103,7 +103,7 @@ void Service::onHeadersReceived(const boost::system::error_code& ec, std::size_t
     {
         std::cout << e.what() << std::endl;
         m_resource_buffer.clear();
-        sendResponse(Error::HTTP_NOT_FOUND);
+        sendResponse(Error::HTTP_SERVER_ERROR);
     }
 }
 
@@ -166,7 +166,6 @@ void Service::sendResponse(unsigned int response_status_code)
         response_buffers.push_back(boost::asio::buffer(m_resource_buffer));
     }
 
-    // 수정해서 브라우저에 찍히도록 수정
     boost::asio::async_write(*m_sock.get(), response_buffers,
          [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
      {
