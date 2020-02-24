@@ -19,8 +19,6 @@ private:
 	virtual void sendResponse(unsigned int response_status_code);
 	void onResponseSend(const boost::system::error_code& ec, std::size_t bytes_transferred);
 
-    void printErrorCode(const boost::system::error_code &ec);
-
     void finish();
 
 private:

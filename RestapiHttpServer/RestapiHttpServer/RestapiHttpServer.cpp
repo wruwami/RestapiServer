@@ -7,11 +7,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/system/system_error.hpp>
 
+#include "Error.h"
 #include "Server.h"
 
 int main()
 {
-    const unsigned short PORT = 3333;
+    const unsigned short PORT = 8080;
     const unsigned int DEFAULT_THREAD_POOL_SIZE = 2;
 
     try 
@@ -32,7 +33,7 @@ int main()
     }
     catch (boost::system::system_error &e) 
     {
-        std::cout << "Error occured! Error code = "	<< e.code() << ". Message: " << e.what();
+        Error::printErrorCode(e);
     }
 
     return 0;

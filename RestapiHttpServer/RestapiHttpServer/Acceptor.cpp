@@ -3,6 +3,7 @@
 #include <boost\asio.hpp>
 
 #include "Acceptor.h"
+#include "Error.h"
 #include "Service.h"
 
 Acceptor::Acceptor(boost::asio::io_service& ios, unsigned short port_num)
@@ -45,7 +46,7 @@ void Acceptor::onAccept(const boost::system::error_code& ec, std::shared_ptr<boo
     }
     else
     {
-        std::cout << "Error occured! Error code = " << ec.value() << ". Message: " << ec.message();
+        Error::printErrorCode(ec);
     }
 
     if (!m_is_stopped.load())

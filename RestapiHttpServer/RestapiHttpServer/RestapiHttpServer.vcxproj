@@ -89,10 +89,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\wruwami\Documents\workspace\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\wruwami\Documents\workspace\vcpkg\installed\x86-windows\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -148,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Acceptor.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="stdafx.h" />
@@ -170,7 +174,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets" Condition="Exists('..\packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" />
     <Import Project="..\packages\boost.1.71.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.71.0.0\build\boost.targets')" />
     <Import Project="..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets" Condition="Exists('..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" />
     <Import Project="..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets" Condition="Exists('..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" />
@@ -183,13 +186,11 @@
     <Import Project="..\packages\boost_thread-vc120.1.71.0.0\build\boost_thread-vc120.targets" Condition="Exists('..\packages\boost_thread-vc120.1.71.0.0\build\boost_thread-vc120.targets')" />
     <Import Project="..\packages\boost_regex-vc140.1.71.0.0\build\boost_regex-vc140.targets" Condition="Exists('..\packages\boost_regex-vc140.1.71.0.0\build\boost_regex-vc140.targets')" />
     <Import Project="..\packages\boost_filesystem-vc140.1.71.0.0\build\boost_filesystem-vc140.targets" Condition="Exists('..\packages\boost_filesystem-vc140.1.71.0.0\build\boost_filesystem-vc140.targets')" />
-    <Import Project="..\packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets" Condition="Exists('..\packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets'))" />
     <Error Condition="!Exists('..\packages\boost.1.71.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.71.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets'))" />
     <Error Condition="!Exists('..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets'))" />
@@ -203,6 +204,5 @@
     <Error Condition="!Exists('..\packages\boost_thread-vc120.1.71.0.0\build\boost_thread-vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc120.1.71.0.0\build\boost_thread-vc120.targets'))" />
     <Error Condition="!Exists('..\packages\boost_regex-vc140.1.71.0.0\build\boost_regex-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_regex-vc140.1.71.0.0\build\boost_regex-vc140.targets'))" />
     <Error Condition="!Exists('..\packages\boost_filesystem-vc140.1.71.0.0\build\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_filesystem-vc140.1.71.0.0\build\boost_filesystem-vc140.targets'))" />
-    <Error Condition="!Exists('..\packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets'))" />
   </Target>
 </Project>
